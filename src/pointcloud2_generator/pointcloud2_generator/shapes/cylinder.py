@@ -1,5 +1,13 @@
+"""
+cylinder.py
+
+Generates random points uniformly filling a cylinder volume of given
+radius and height, centered on 'center'.
+"""
+
 import numpy as np
 from .base import ShapeGenerator
+
 
 class CylinderGenerator(ShapeGenerator):
     def __init__(self, radius=1.0, height=2.0, **kwargs):
@@ -7,7 +15,7 @@ class CylinderGenerator(ShapeGenerator):
         self.radius = float(radius)
         self.height = float(height)
 
-    def generate(self):
+    def generate(self) -> np.ndarray:
         theta = self.rng.uniform(0.0, 2.0 * np.pi, self.num_points)
         r = self.radius * np.sqrt(self.rng.uniform(0.0, 1.0, self.num_points))
         z = self.rng.uniform(-self.height / 2.0, self.height / 2.0, self.num_points)

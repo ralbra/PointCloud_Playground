@@ -1,0 +1,37 @@
+# scene.yaml
+#
+# Basic example scene for the pointcloud2_generator node. 
+# This places 5 shapes in a ring with radius 3.0 m.
+
+frame_id: map
+
+shapes:
+  - type: sphere
+    num_points: 2000
+    center: [3.000, 0.000, 0.0]
+    radius: 0.6
+
+  - type: cuboid
+    num_points: 2000
+    center: [0.927, 2.853, 0.0]
+    size_x: 1.0
+    size_y: 1.0
+    size_z: 1.0
+
+  - type: cylinder
+    num_points: 2000
+    center: [-2.427, 1.763, 0.0]
+    radius: 0.5
+    height: 1.5
+
+  - type: cone
+    num_points: 2000
+    center: [-2.427, -1.763, 0.0]
+    radius: 0.6
+    height: 1.5
+
+  - type: pyramid
+    num_points: 2000
+    center: [0.927, -2.853, 0.0]
+    base_size: 1.2
+    height: 1.5

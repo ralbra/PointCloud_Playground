@@ -7,9 +7,10 @@ setup(
     version='0.0.0',
     packages=find_packages(exclude=['test']),
     data_files=[
-        ('share/ament_index/resource_index/packages',
-            ['resource/' + package_name]),
+        ('share/ament_index/resource_index/packages', ['resource/pointcloud2_generator']),
         ('share/' + package_name, ['package.xml']),
+        ('share/' + package_name + '/launch', ['launch/generator_launch.py']),
+        ('share/' + package_name + '/config', ['config/scene.yaml', 'config/params.yaml']),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

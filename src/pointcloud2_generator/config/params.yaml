@@ -1,0 +1,21 @@
+# params.yaml
+#
+# Static ROS 2 parameter file for the pointcloud_generator node.
+# The node name below MUST match the name used in generator_node.py
+# (super().__init__('pointcloud_generator')), otherwise ROS 2 will not
+# load these values and will silently fall back to declared defaults.
+#
+# NOTE: 'scene_file' below is an ABSOLUTE path placeholder. Adjust it to
+# wherever scene.yaml is installed/checked out on your machine, e.g.:
+#   /home/<user>/ros2_ws/src/pointcloud2_generator/config/scene.yaml
+#
+# If you use the provided launch file instead, the path is resolved
+# automatically via the package share directory and you don't need to
+# edit this file at all.
+
+pointcloud_generator:
+  ros__parameters:
+    scene_file: "/wokspaces/ros2_ws/src/pointcloud2_generator/config/scene.yaml"
+    publish_rate: 10.0
+    topic_name: "pointcloud"
+    frame_id: ""

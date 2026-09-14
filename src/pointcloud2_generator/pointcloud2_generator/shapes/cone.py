@@ -1,5 +1,14 @@
+"""
+cone.py
+
+Generates random points uniformly filling a cone volume of given base
+radius and height, centered on 'center'. Tip is at -height/2, base at
++height/2 in local coordinates.
+"""
+
 import numpy as np
 from .base import ShapeGenerator
+
 
 class ConeGenerator(ShapeGenerator):
     def __init__(self, radius=1.0, height=2.0, **kwargs):
@@ -7,7 +16,7 @@ class ConeGenerator(ShapeGenerator):
         self.radius = float(radius)
         self.height = float(height)
 
-    def generate(self):
+    def generate(self) -> np.ndarray:
         u = self.rng.uniform(0.0, 1.0, self.num_points)
         h = self.height * np.cbrt(u)
 
