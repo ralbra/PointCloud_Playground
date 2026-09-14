@@ -27,7 +27,7 @@ def generate_launch_description():
     package_share = FindPackageShare('pointcloud2_generator')
 
     default_scene_file = PathJoinSubstitution([
-        package_share, 'config', 'scene.yaml'
+        package_share, 'config', 'static_scene.yaml'
     ])
 
     default_params_file = PathJoinSubstitution([

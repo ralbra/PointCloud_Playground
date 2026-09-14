@@ -29,7 +29,7 @@ from dataclasses import dataclass, field
 
 import yaml
 
-from pointcloud2_generator.shapes.shape_factory import ShapeFactory
+from pointcloud2_generator.shape_factory import ShapeFactory
 
 
 @dataclass

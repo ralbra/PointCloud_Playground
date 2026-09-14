@@ -1,0 +1,81 @@
+frame_id: map
+
+shapes:
+  # 1. Sphere orbiting in a small circle around its ring position.
+  - type: sphere
+    num_points: 1500
+    center: [3.000, 0.000, 0.0]
+    radius: 0.4
+    motion:
+      type: orbit
+      orbit_radius: 0.6
+      angular_speed: 1.0
+      axis: z
+
+  # 2. Cuboid bobbing up and down along z.
+  - type: cuboid
+    num_points: 1500
+    center: [1.500, 2.598, 0.0]
+    size_x: 0.8
+    size_y: 0.8
+    size_z: 0.8
+    motion:
+      type: bob
+      amplitude: 0.5
+      frequency: 0.3
+      axis: z
+
+  # 3. Cylinder tracing an ellipse in the XY plane around its ring position.
+  - type: cylinder
+    num_points: 1500
+    center: [-1.500, 2.598, 0.0]
+    radius: 0.35
+    height: 1.0
+    motion:
+      type: ellipse
+      radius_a: 0.9
+      radius_b: 0.4
+      angular_speed: 0.8
+      axis: z
+
+  # 4. Cone tracing the perimeter of a square in the XY plane.
+  - type: cone
+    num_points: 1500
+    center: [-3.000, 0.000, 0.0]
+    radius: 0.4
+    height: 1.0
+    motion:
+      type: square
+      side_length: 1.0
+      speed: 0.6
+      axis: z
+
+  # 5. Pyramid following a closed, looping waypoint path (relative to
+  #    its center). The path traces a small diamond shape lifted in z.
+  - type: pyramid
+    num_points: 1500
+    center: [-1.500, -2.598, 0.0]
+    base_size: 0.8
+    height: 1.0
+    motion:
+      type: waypoints
+      points:
+        - [0.0, 0.0, 0.0]
+        - [0.5, 0.0, 0.4]
+        - [0.0, 0.5, 0.0]
+        - [-0.5, 0.0, 0.4]
+        - [0.0, -0.5, 0.0]
+      speed: 0.5
+      loop: true
+
+  # 6. A second, smaller sphere drifting slowly outward at constant
+  #    velocity to demonstrate linear motion.
+  - type: sphere
+    num_points: 1000
+    center: [1.500, -2.598, 0.0]
+    radius: 0.3
+    motion:
+      type: linear
+      velocity: [0.1, -0.1, 0.0]
+      max_distance: 2.0
+      mode: bounce

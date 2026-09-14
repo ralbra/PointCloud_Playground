@@ -1,9 +1,9 @@
 """
 shape_factory.py
 
-Builds a single ShapeGenerator instance from a plain dict spec, as parsed
-from a scene file entry. Keeping this logic separate from SceneLoader keeps
-"parse the file" and "build the objects" as two distinct responsibilities.
+Builds a single ShapeGenerator instance (optionally with a Motion object,
+built via MotionFactory) from a plain dict spec, as parsed from a scene
+file entry.
 """
 
 from pointcloud2_generator.shapes.sphere import SphereGenerator
@@ -12,11 +12,13 @@ from pointcloud2_generator.shapes.cylinder import CylinderGenerator
 from pointcloud2_generator.shapes.cone import ConeGenerator
 from pointcloud2_generator.shapes.pyramid import PyramidGenerator
 
+from pointcloud2_generator.motion_factory import MotionFactory
+
 
 class ShapeFactory:
     """Creates a ShapeGenerator subclass instance from a shape spec dict."""
 
-    _REGISTRY = {
+    _SHAPE_REGISTRY = {
         "sphere": SphereGenerator,
         "cuboid": CuboidGenerator,
         "cylinder": CylinderGenerator,
@@ -31,8 +33,8 @@ class ShapeFactory:
 
         shape_type = str(spec["type"]).lower()
 
-        if shape_type not in ShapeFactory._REGISTRY:
-            known = ", ".join(sorted(ShapeFactory._REGISTRY.keys()))
+        if shape_type not in ShapeFactory._SHAPE_REGISTRY:
+            known = ", ".join(sorted(ShapeFactory._SHAPE_REGISTRY.keys()))
             raise ValueError(
                 f"Unknown shape type '{shape_type}'. Known types: {known}"
             )
@@ -41,9 +43,10 @@ class ShapeFactory:
             "num_points": spec.get("num_points", 1000),
             "center": tuple(spec.get("center", (0.0, 0.0, 0.0))),
             "seed": spec.get("seed", None),
+            "motion": MotionFactory.create(spec.get("motion")),
         }
 
-        cls = ShapeFactory._REGISTRY[shape_type]
+        cls = ShapeFactory._SHAPE_REGISTRY[shape_type]
         extra_kwargs = ShapeFactory._extract_shape_kwargs(shape_type, spec)
 
         try:

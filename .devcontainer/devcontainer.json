@@ -19,5 +19,5 @@
     "--net=host",
     "--ipc=host"
   ],
-  "postCreateCommand": "grep -qxF 'source /opt/ros/humble/setup.bash' ~/.bashrc || echo 'source /opt/ros/humble/setup.bash' >> ~/.bashrc"
+  "postCreateCommand": "grep -qxF 'source /opt/ros/humble/setup.bash' ~/.bashrc || echo 'source /opt/ros/humble/setup.bash' >> ~/.bashrc || git config --global user.email 'ralf_brandt@outlook.com' || git config --global user.name 'Ralf Brandt'"
 }

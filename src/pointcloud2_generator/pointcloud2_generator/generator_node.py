@@ -2,7 +2,9 @@
 generator_node.py
 
 ROS 2 (Humble) node that publishes a combined PointCloud2 built from a
-list of shapes defined in an external YAML or JSON scene file.
+list of shapes defined in an external YAML or JSON scene file. Shapes may
+optionally define a 'motion' block in the scene file, which animates
+their center position over elapsed time.
 
 ROS parameters:
     scene_file    (string)  Path to the YAML/JSON scene file. Required.
@@ -11,8 +13,13 @@ ROS parameters:
     frame_id      (string)  Overrides the frame_id from the scene file
                              if set to a non-empty string. Default: ''
 
-A fresh random point cloud is generated on every timer tick by re-calling
-generate() on every shape in the scene and concatenating the results.
+On every timer tick:
+    1. Elapsed time since node start is computed via the node's own clock.
+    2. Each shape's update_center(elapsed_seconds) is called, applying its
+       motion (if any).
+    3. Each shape's generate() is called, producing fresh random points
+       around its current (possibly moved) center.
+    4. All shapes' points are concatenated and published as one PointCloud2.
 """
 
 import numpy as np
@@ -60,10 +67,17 @@ class PointCloudGeneratorNode(Node):
 
         self.publisher_ = self.create_publisher(PointCloud2, topic_name, 10)
 
+        self._start_time = self.get_clock().now()
+
         timer_period = 1.0 / publish_rate if publish_rate > 0.0 else 0.1
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
     def timer_callback(self):
+        elapsed_seconds = self._get_elapsed_seconds()
+
+        for generator in self.scene.generators:
+            generator.update_center(elapsed_seconds)
+
         points = self.generate_combined_cloud()
 
         header = Header()
@@ -72,6 +86,10 @@ class PointCloudGeneratorNode(Node):
 
         msg = point_cloud2.create_cloud_xyz32(header, points.tolist())
         self.publisher_.publish(msg)
+
+    def _get_elapsed_seconds(self) -> float:
+        now = self.get_clock().now()
+        return (now - self._start_time).nanoseconds / 1e9
 
     def generate_combined_cloud(self) -> np.ndarray:
         if not self.scene.generators:
