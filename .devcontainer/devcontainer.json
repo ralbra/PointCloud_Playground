@@ -5,12 +5,19 @@
   },
   "workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/ros2_ws,type=bind",
   "workspaceFolder": "/workspaces/ros2_ws",
-    "mounts": [
-    "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind"
+  
+  "mounts": [
+    "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind",
+    "source=${localEnv:XAUTHORITY},target=/root/.Xauthority,type=bind"
   ],
   "containerEnv": {
     "DISPLAY": "${localEnv:DISPLAY}",
-    "QT_X11_NO_MITSHM": "1"
+    "QT_X11_NO_MITSHM": "1",
+    "XAUTHORITY":"/root/.Xauthority"
   },
+  "runArgs": [
+    "--net=host",
+    "--ipc=host"
+  ],
   "postCreateCommand": "grep -qxF 'source /opt/ros/humble/setup.bash' ~/.bashrc || echo 'source /opt/ros/humble/setup.bash' >> ~/.bashrc"
 }
