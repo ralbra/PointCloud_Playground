@@ -2,25 +2,22 @@
 scene_loader.py
 
 Loads an external scene description (YAML or JSON) that defines a list of
-shapes to be generated as a combined PointCloud2. The scene file is
-independent of ROS parameters -- it is a plain data file referenced by a
-ROS parameter (e.g. `scene_file`).
+shapes to be generated as a combined PointCloud2, plus the desired
+PointCloud2 field layout (point_type).
 
 Expected scene file structure (YAML shown, JSON works the same way):
 
     frame_id: map
+    point_type: xyzrgbi          # optional, default: 'xyz'
+    intensity_field_name: reflectivity   # optional, default: 'intensity'
+
     shapes:
       - type: sphere
         num_points: 2000
         center: [0.0, 0.0, 0.0]
         radius: 1.0
-
-      - type: cuboid
-        num_points: 3000
-        center: [2.0, 0.0, 0.0]
-        size_x: 1.0
-        size_y: 2.0
-        size_z: 0.5
+        color: [255, 0, 0]
+        intensity: 0.8
 """
 
 import json
@@ -29,13 +26,15 @@ from dataclasses import dataclass, field
 
 import yaml
 
-from pointcloud2_generator.shape_factory import ShapeFactory
+from pointcloud2_generator.shapes.shape_factory import ShapeFactory
+from pointcloud2_generator.cloud_format import CloudFormat
 
 
 @dataclass
 class Scene:
     frame_id: str = "map"
     generators: list = field(default_factory=list)
+    cloud_format: CloudFormat = None
 
 
 class SceneLoadError(Exception):
@@ -44,7 +43,8 @@ class SceneLoadError(Exception):
 
 
 class SceneLoader:
-    """Loads a scene file (YAML or JSON) and builds shape generator objects."""
+    """Loads a scene file (YAML or JSON) and builds shape generator objects
+    plus the CloudFormat describing the desired PointCloud2 field layout."""
 
     SUPPORTED_YAML_EXTENSIONS = (".yaml", ".yml")
     SUPPORTED_JSON_EXTENSIONS = (".json",)
@@ -65,6 +65,17 @@ class SceneLoader:
             )
 
         frame_id = raw_data.get("frame_id", "map")
+        point_type = raw_data.get("point_type", "xyz")
+        intensity_field_name = raw_data.get("intensity_field_name", "intensity")
+
+        try:
+            cloud_format = CloudFormat(
+                point_type=point_type,
+                intensity_field_name=intensity_field_name,
+            )
+        except ValueError as exc:
+            raise SceneLoadError(f"Invalid point_type in '{path}': {exc}") from exc
+
         shape_specs = raw_data.get("shapes", [])
 
         if not isinstance(shape_specs, list):
@@ -92,7 +103,11 @@ class SceneLoader:
 
             generators.append(generator)
 
-        return Scene(frame_id=frame_id, generators=generators)
+        return Scene(
+            frame_id=frame_id,
+            generators=generators,
+            cloud_format=cloud_format,
+        )
 
     @staticmethod
     def _read_file(path: str):

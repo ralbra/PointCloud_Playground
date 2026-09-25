@@ -1,0 +1,28 @@
+{
+  "version": "0.2.0",
+  "inputs": [
+    {
+      "id": "sceneFile",
+      "type": "promptString",
+      "description": "Scene file path, relative to config/ (e.g. scene.yaml, motion_scene.yaml)",
+      "default": "static_scene.yaml"
+    },
+    {
+      "id": "startRviz",
+      "type": "pickString",
+      "description": "Start RViz2 with the default config?",
+      "options": ["true", "false"],
+      "default": "true"
+    }
+  ],
+  "configurations": [
+    {
+      "name": "pointcloud2_generator: Run (choose scene)",
+      "type": "node-terminal",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "pointcloud2_generator: Build",
+      "command": "${workspaceFolder}/scripts/launch.sh scene_file:=${workspaceFolder}/install/pointcloud2_generator/share/pointcloud2_generator/config/${input:sceneFile} start_rviz:=${input:startRviz}"
+    }
+  ]
+}

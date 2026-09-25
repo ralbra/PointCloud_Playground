@@ -7,8 +7,8 @@
   "workspaceFolder": "/workspaces/ros2_ws",
   
   "mounts": [
-    "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind",
-    "source=${localEnv:XAUTHORITY},target=/root/.Xauthority,type=bind"
+    "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind,ro=true",
+    "source=${localEnv:HOME}/.Xauthority-docker,target=/root/.Xauthority,type=bind,ro=true"
   ],
   "containerEnv": {
     "DISPLAY": "${localEnv:DISPLAY}",

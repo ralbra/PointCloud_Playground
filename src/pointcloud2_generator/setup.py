@@ -26,15 +26,17 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
 
-        # All launch files (*.py) under launch/, installed flat into
-        # share/<package_name>/launch/
+        # All launch files (*.py) under launch/
         (os.path.join('share', package_name, 'launch'),
             all_files('launch', ['*.py'])),
 
-        # All scene/config files (YAML + JSON) under config/, installed
-        # flat into share/<package_name>/config/
+        # All scene/config files (YAML + JSON) under config/
         (os.path.join('share', package_name, 'config'),
             all_files('config', ['*.yaml', '*.yml', '*.json'])),
+
+        # All RViz2 config files under rviz/
+        (os.path.join('share', package_name, 'rviz'),
+            all_files('rviz', ['*.rviz'])),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -43,7 +45,7 @@ setup(
     description='Universal PointCloud2 generator for ROS 2, builds combined '
                  'point clouds from a scene file describing multiple shapes '
                  '(sphere, cuboid, cylinder, cone, pyramid) with optional '
-                 'time-based motion.',
+                 'time-based motion and configurable point fields.',
     license='Apache-2.0',
     tests_require=['pytest'],
     entry_points={

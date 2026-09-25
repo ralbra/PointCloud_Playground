@@ -2,8 +2,8 @@
 shape_factory.py
 
 Builds a single ShapeGenerator instance (optionally with a Motion object,
-built via MotionFactory) from a plain dict spec, as parsed from a scene
-file entry.
+built via MotionFactory, and optional color/intensity) from a plain dict
+spec, as parsed from a scene file entry.
 """
 
 from pointcloud2_generator.shapes.sphere import SphereGenerator
@@ -12,7 +12,7 @@ from pointcloud2_generator.shapes.cylinder import CylinderGenerator
 from pointcloud2_generator.shapes.cone import ConeGenerator
 from pointcloud2_generator.shapes.pyramid import PyramidGenerator
 
-from pointcloud2_generator.motion_factory import MotionFactory
+from pointcloud2_generator.motion.motion_factory import MotionFactory
 
 
 class ShapeFactory:
@@ -44,6 +44,8 @@ class ShapeFactory:
             "center": tuple(spec.get("center", (0.0, 0.0, 0.0))),
             "seed": spec.get("seed", None),
             "motion": MotionFactory.create(spec.get("motion")),
+            "color": ShapeFactory._parse_color(spec.get("color")),
+            "intensity": spec.get("intensity", None),
         }
 
         cls = ShapeFactory._SHAPE_REGISTRY[shape_type]
@@ -55,6 +57,21 @@ class ShapeFactory:
             raise ValueError(
                 f"Invalid or missing parameters for shape type '{shape_type}': {exc}"
             ) from exc
+
+    @staticmethod
+    def _parse_color(color_spec):
+        if color_spec is None:
+            return None
+        if len(color_spec) != 3:
+            raise ValueError(
+                f"'color' must have exactly 3 values [r, g, b], got: {color_spec}"
+            )
+        for channel in color_spec:
+            if not (0 <= channel <= 255):
+                raise ValueError(
+                    f"'color' channel values must be in range 0-255, got: {color_spec}"
+                )
+        return tuple(int(c) for c in color_spec)
 
     @staticmethod
     def _extract_shape_kwargs(shape_type: str, spec: dict) -> dict:

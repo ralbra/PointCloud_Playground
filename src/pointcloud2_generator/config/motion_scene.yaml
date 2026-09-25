@@ -68,7 +68,7 @@ shapes:
       speed: 0.5
       loop: true
 
-  # 6. A second, smaller sphere drifting slowly outward at constant
+  # 6. A second, smaller sphere at constant
   #    velocity to demonstrate linear motion.
   - type: sphere
     num_points: 1000

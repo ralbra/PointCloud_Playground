@@ -1,0 +1,66 @@
+{
+  "version": "2.0.0",
+  "inputs": [
+    {
+      "id": "sceneFile",
+      "type": "pickString",
+      "description": "Which scene file should be launched?",
+      "options": [
+        "config/scene.yaml",
+        "config/motion_scene.yaml",
+        "config/colored_scene.yaml"
+      ],
+      "default": "config/scene.yaml"
+    },
+    {
+      "id": "startRviz",
+      "type": "pickString",
+      "description": "Start RViz2 with the default config?",
+      "options": ["true", "false"],
+      "default": "true"
+    }
+  ],
+  "tasks": [
+    {
+      "label": "pointcloud2_generator: Build",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/build.sh",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "pointcloud2_generator: Run (choose scene)",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/run.sh",
+      "args": [
+        "scene_file:=${workspaceFolder}/install/pointcloud2_generator/share/pointcloud2_generator/${input:sceneFile}",
+        "start_rviz:=${input:startRviz}"
+      ],
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "pointcloud2_generator: Run (default scene, no prompt)",
+      "type": "shell",
+      "command": "${workspaceFolder}/scripts/run.sh",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    }
+  ]
+}

@@ -3,8 +3,9 @@ generator_node.py
 
 ROS 2 (Humble) node that publishes a combined PointCloud2 built from a
 list of shapes defined in an external YAML or JSON scene file. Shapes may
-optionally define a 'motion' block in the scene file, which animates
-their center position over elapsed time.
+optionally define a 'motion' block (animates center over time) and/or
+'color' / 'intensity' values, used according to the scene's 'point_type'
+(xyz, xyzi, xyzrgb, or xyzrgbi -- see cloud_format.py).
 
 ROS parameters:
     scene_file    (string)  Path to the YAML/JSON scene file. Required.
@@ -17,9 +18,12 @@ On every timer tick:
     1. Elapsed time since node start is computed via the node's own clock.
     2. Each shape's update_center(elapsed_seconds) is called, applying its
        motion (if any).
-    3. Each shape's generate() is called, producing fresh random points
-       around its current (possibly moved) center.
-    4. All shapes' points are concatenated and published as one PointCloud2.
+    3. Each shape's generate() produces fresh (N, 3) xyz points around its
+       current center.
+    4. cloud_format.build_shape_points() expands those xyz points into the
+       full per-point column layout (adding rgb/intensity columns as needed).
+    5. All shapes' point arrays are concatenated and published as one
+       PointCloud2, using the scene's PointField layout.
 """
 
 import numpy as np
@@ -62,7 +66,8 @@ class PointCloudGeneratorNode(Node):
 
         self.get_logger().info(
             f"Loaded {len(self.scene.generators)} shape(s) from '{scene_file}' "
-            f"(frame_id='{self.frame_id}', rate={publish_rate} Hz)."
+            f"(frame_id='{self.frame_id}', point_type='{self.scene.cloud_format.point_type}', "
+            f"rate={publish_rate} Hz)."
         )
 
         self.publisher_ = self.create_publisher(PointCloud2, topic_name, 10)
@@ -78,13 +83,15 @@ class PointCloudGeneratorNode(Node):
         for generator in self.scene.generators:
             generator.update_center(elapsed_seconds)
 
-        points = self.generate_combined_cloud()
+        combined_points = self.generate_combined_cloud()
 
         header = Header()
         header.stamp = self.get_clock().now().to_msg()
         header.frame_id = self.frame_id
 
-        msg = point_cloud2.create_cloud_xyz32(header, points.tolist())
+        msg = point_cloud2.create_cloud(
+            header, self.scene.cloud_format.fields, combined_points
+        )
         self.publisher_.publish(msg)
 
     def _get_elapsed_seconds(self) -> float:
@@ -92,11 +99,21 @@ class PointCloudGeneratorNode(Node):
         return (now - self._start_time).nanoseconds / 1e9
 
     def generate_combined_cloud(self) -> np.ndarray:
-        if not self.scene.generators:
-            return np.empty((0, 3), dtype=np.float32)
+        cloud_format = self.scene.cloud_format
+        num_columns = cloud_format.num_columns
 
-        clouds = [generator.generate() for generator in self.scene.generators]
-        return np.concatenate(clouds, axis=0).astype(np.float32)
+        if not self.scene.generators:
+            return np.empty((0, num_columns), dtype=np.float32)
+
+        shape_arrays = [
+            cloud_format.build_shape_points(
+                generator.generate(),
+                color=generator.color,
+                intensity=generator.intensity,
+            )
+            for generator in self.scene.generators
+        ]
+        return np.concatenate(shape_arrays, axis=0).astype(np.float32)
 
 
 def main(args=None):
