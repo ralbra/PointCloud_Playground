@@ -15,7 +15,7 @@
 
 pointcloud_generator:
   ros__parameters:
-    scene_file: "/wokspaces/ros2_ws/src/pointcloud2_generator/config/scene.yaml"
+    scene_file: "/wokspaces/ros2_ws/src/pointcloud2_generator/config/static_scene.yaml"
     publish_rate: 10.0
     topic_name: "pointcloud"
     frame_id: ""

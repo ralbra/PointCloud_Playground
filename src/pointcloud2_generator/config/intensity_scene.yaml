@@ -1,0 +1,19 @@
+point_type: xyzrgbi
+intensity_field_name: reflectivity
+
+shapes:
+  - type: sphere
+    num_points: 2000
+    center: [3.0, 0.0, 0.0]
+    radius: 0.6
+    color: [255, 0, 0]
+    intensity_range: [0.2, 0.9]   # random per-point value in this range
+
+  - type: cuboid
+    num_points: 2000
+    center: [0.0, 3.0, 0.0]
+    size_x: 1.0
+    size_y: 1.0
+    size_z: 1.0
+    color: [0, 255, 0]
+    intensity: 0.5                # fixed value for every point

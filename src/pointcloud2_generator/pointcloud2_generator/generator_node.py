@@ -4,8 +4,8 @@ generator_node.py
 ROS 2 (Humble) node that publishes a combined PointCloud2 built from a
 list of shapes defined in an external YAML or JSON scene file. Shapes may
 optionally define a 'motion' block (animates center over time) and/or
-'color' / 'intensity' values, used according to the scene's 'point_type'
-(xyz, xyzi, xyzrgb, or xyzrgbi -- see cloud_format.py).
+'color' / 'intensity' / 'intensity_range' values, used according to the
+scene's 'point_type' (xyz, xyzi, xyzrgb, or xyzrgbi -- see cloud_format.py).
 
 ROS parameters:
     scene_file    (string)  Path to the YAML/JSON scene file. Required.
@@ -20,9 +20,11 @@ On every timer tick:
        motion (if any).
     3. Each shape's generate() produces fresh (N, 3) xyz points around its
        current center.
-    4. cloud_format.build_shape_points() expands those xyz points into the
-       full per-point column layout (adding rgb/intensity columns as needed).
-    5. All shapes' point arrays are concatenated and published as one
+    4. Each shape's get_intensity_values() produces either a fixed value,
+       a fresh random value per point (if intensity_range is set), or None.
+    5. cloud_format.build_shape_points() expands xyz + color + intensity
+       into the full per-point column layout.
+    6. All shapes' point arrays are concatenated and published as one
        PointCloud2, using the scene's PointField layout.
 """
 
@@ -109,7 +111,7 @@ class PointCloudGeneratorNode(Node):
             cloud_format.build_shape_points(
                 generator.generate(),
                 color=generator.color,
-                intensity=generator.intensity,
+                intensity=generator.get_intensity_values(),
             )
             for generator in self.scene.generators
         ]

@@ -2,8 +2,8 @@
 shape_factory.py
 
 Builds a single ShapeGenerator instance (optionally with a Motion object,
-built via MotionFactory, and optional color/intensity) from a plain dict
-spec, as parsed from a scene file entry.
+built via MotionFactory, and optional color/intensity/intensity_range)
+from a plain dict spec, as parsed from a scene file entry.
 """
 
 from pointcloud2_generator.shapes.sphere import SphereGenerator
@@ -12,7 +12,7 @@ from pointcloud2_generator.shapes.cylinder import CylinderGenerator
 from pointcloud2_generator.shapes.cone import ConeGenerator
 from pointcloud2_generator.shapes.pyramid import PyramidGenerator
 
-from pointcloud2_generator.motion.motion_factory import MotionFactory
+from pointcloud2_generator.pointcloud2_generator.motion_factory import MotionFactory
 
 
 class ShapeFactory:
@@ -46,6 +46,7 @@ class ShapeFactory:
             "motion": MotionFactory.create(spec.get("motion")),
             "color": ShapeFactory._parse_color(spec.get("color")),
             "intensity": spec.get("intensity", None),
+            "intensity_range": spec.get("intensity_range", None),
         }
 
         cls = ShapeFactory._SHAPE_REGISTRY[shape_type]

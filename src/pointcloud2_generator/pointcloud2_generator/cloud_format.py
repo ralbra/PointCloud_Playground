@@ -83,8 +83,12 @@ class CloudFormat:
         color: optional (r, g, b) 0-255 tuple. Ignored if this format has
                no rgb field. Defaults to white (255, 255, 255) if the
                format needs rgb but none was given.
-        intensity: optional float. Ignored if this format has no
-                   intensity field. Defaults to 0.0 if needed but not given.
+        intensity: optional. Ignored if this format has no intensity
+                   field. Accepts either:
+                     - None            -> defaults to 0.0 for every point
+                     - a scalar float  -> broadcast to every point
+                     - an (N,) array   -> one value per point (e.g. from
+                                          ShapeGenerator.get_intensity_values())
 
         Returns an (N, num_columns) float32 array matching self.fields order.
         """
@@ -97,7 +101,24 @@ class CloudFormat:
             columns.append(np.full((n, 1), rgb_value, dtype=np.float32))
 
         if self.has_intensity:
-            value = float(intensity) if intensity is not None else 0.0
-            columns.append(np.full((n, 1), value, dtype=np.float32))
+            columns.append(self._resolve_intensity_column(intensity, n))
 
         return np.concatenate(columns, axis=1).astype(np.float32)
+
+    @staticmethod
+    def _resolve_intensity_column(intensity, n: int) -> np.ndarray:
+        if intensity is None:
+            return np.zeros((n, 1), dtype=np.float32)
+
+        arr = np.asarray(intensity, dtype=np.float32)
+
+        if arr.ndim == 0:
+            return np.full((n, 1), float(arr), dtype=np.float32)
+
+        if arr.shape[0] != n:
+            raise ValueError(
+                f"Intensity array length ({arr.shape[0]}) does not match "
+                f"number of points ({n})."
+            )
+
+        return arr.reshape(n, 1)
