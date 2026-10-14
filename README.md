@@ -1,5 +1,5 @@
 # Pointcloud_Playground
-This Repo Contains my modules on working with ROS2 pointcloud2 Data. Currently this repo is only tested witrh ROS2 Humble.
+This Repo Contains my modules on working with ROS2 pointcloud2 Data. Currently this repo is only tested with ROS2 Humble.
 
 ## pointcloud2_generator
 
