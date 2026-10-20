@@ -153,7 +153,7 @@ ros2 launch pointcloud2_generator generator_launch.py
 
 | Argument | Default | Description |
 |---|---|---|
-| `scene_file` | `config/scene.yaml` (installed share path) | Path to the YAML/JSON scene file. |
+| `scene_file` | `config/static_scene.yaml` (installed share path) | Path to the YAML/JSON scene file. |
 | `publish_rate` | `10.0` | Publish frequency in Hz. |
 | `topic_name` | `pointcloud` | Output `PointCloud2` topic. |
 | `frame_id` | `''` | Overrides the scene file's `frame_id` if non-empty. |

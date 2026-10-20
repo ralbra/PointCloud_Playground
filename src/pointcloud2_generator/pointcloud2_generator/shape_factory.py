@@ -12,7 +12,7 @@ from pointcloud2_generator.shapes.cylinder import CylinderGenerator
 from pointcloud2_generator.shapes.cone import ConeGenerator
 from pointcloud2_generator.shapes.pyramid import PyramidGenerator
 
-from pointcloud2_generator.pointcloud2_generator.motion_factory import MotionFactory
+from pointcloud2_generator.motion_factory import MotionFactory
 
 
 class ShapeFactory:

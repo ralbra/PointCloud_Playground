@@ -6,11 +6,11 @@
       "type": "pickString",
       "description": "Which scene file should be launched?",
       "options": [
-        "config/scene.yaml",
+        "config/static_scene.yaml",
         "config/motion_scene.yaml",
         "config/colored_scene.yaml"
       ],
-      "default": "config/scene.yaml"
+      "default": "config/static_scene.yaml"
     },
     {
       "id": "startRviz",

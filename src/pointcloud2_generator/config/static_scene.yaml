@@ -1,4 +1,4 @@
-# scene.yaml
+# static_scene.yaml
 #
 # Basic example scene for the pointcloud2_generator node. 
 # This places 5 shapes in a ring with radius 3.0 m.

@@ -1,5 +1,5 @@
 point_type: xyzrgbi
-intensity_field_name: reflectivity
+#intensity_field_name: reflectivity
 
 shapes:
   - type: sphere

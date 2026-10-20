@@ -23,6 +23,16 @@
       "cwd": "${workspaceFolder}",
       "preLaunchTask": "pointcloud2_generator: Build",
       "command": "${workspaceFolder}/scripts/launch.sh scene_file:=${workspaceFolder}/install/pointcloud2_generator/share/pointcloud2_generator/config/${input:sceneFile} start_rviz:=${input:startRviz}"
+    },
+
+    {
+      "name": "Full Pipeline: Run (choose scene)",
+      "type": "node-terminal",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "pointcloud2_generator: Build",
+      "command": "${workspaceFolder}/scripts/launch_full.sh scene_file:=${workspaceFolder}/install/pointcloud2_generator/share/pointcloud2_generator/config/${input:sceneFile} start_rviz:=${input:startRviz}"
     }
   ]
+  
 }
