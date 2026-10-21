@@ -1,0 +1,22 @@
+# Rear source: the same quantity under a different field name.
+frame_id: map
+point_type: xyzrgbi
+intensity_field_name: reflectivity
+
+shapes:
+  - type: cuboid
+    num_points: 2000
+    center: [3.5, 1.0, 0.0]
+    size_x: 2.0
+    size_y: 2.0
+    size_z: 2.0
+    color: [0, 0, 255]
+    intensity: 0.2          # overlaps the front sphere: mean 50, max 80
+
+  - type: cylinder
+    num_points: 2000
+    center: [-3.0, -3.0, 0.0]
+    radius: 1.0
+    height: 2.0
+    color: [255, 255, 0]
+    intensity: 0.6

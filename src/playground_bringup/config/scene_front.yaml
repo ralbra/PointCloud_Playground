@@ -1,0 +1,20 @@
+# Front source. The intensity-like field keeps its default name: "intensity".
+frame_id: map
+point_type: xyzrgbi
+
+shapes:
+  - type: sphere
+    num_points: 3000
+    center: [3.0, 0.0, 0.0]
+    radius: 1.5
+    color: [255, 0, 0]
+    intensity: 0.8          # 80 in the grid with intensity_factor 100
+
+  - type: cuboid
+    num_points: 2000
+    center: [-3.0, 3.0, 0.0]
+    size_x: 2.0
+    size_y: 2.0
+    size_z: 2.0
+    color: [0, 255, 0]
+    intensity: 0.4
