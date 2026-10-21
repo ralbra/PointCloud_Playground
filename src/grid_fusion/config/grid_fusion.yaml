@@ -1,0 +1,11 @@
+grid_fusion_node:
+  ros__parameters:
+    inputs: ["front", "rear"]       # grids are read from <prefix>/intensity_grid etc.
+    output_prefix: "fused"
+    fuse_occupancy_grids: true
+    fuse_grid_maps: true
+    publish_rate: 10.0
+    intensity_rule: "mean"          # max | min | sum | mean | latest
+    height_rule: "max"
+    input_timeout: 1.0              # seconds without a new grid before an input is dropped
+    min_fresh_inputs: 1             # set to the number of inputs to require all of them
