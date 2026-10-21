@@ -76,37 +76,9 @@ pointcloud2_generator/
         ├── ellipse.py
         ├── square.py
         └── waypoints.py
-
-# workspace root (outside this package)
-├── scripts/
-│   ├── build.sh
-│   ├── launch.sh
-│   └── run.sh
-├── .devconteiner/
-│   ├── devcontainer.json
-│   └── Dockerfile
-└── .vscode/
-    ├── tasks.json
-    └── launch.json
 ```
 
 ---
-
-## DevContainer
-This comes with an already working devcontienr you can just open with VSCode and the corresponding VSCode "Dev Containers" plugin.
-Attention this needs your .Xauthority Token or a link to it in your Home directory. This needs to be set so you can start RVIZ2 from the container and pass it via ssh Xforwarding to your host Machine.
-If you don't have this set alredy you'll need to run this script before every startup of your dev container:
-```
-#!/bin/bash
-# wait for the session to be initialized
-sleep 2
-
-# creates a sym link to the current XAUTHORITY.
-if [ -n "$XAUTHORITY" ]; then
-    ln -sf "$XAUTHORITY" "$HOME/.Xauthority"
-fi
-```
-
 
 ## Dependencies
 
