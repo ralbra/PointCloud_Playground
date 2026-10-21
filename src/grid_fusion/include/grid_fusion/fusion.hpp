@@ -22,14 +22,12 @@ inline constexpr int64_t kNever = std::numeric_limits<int64_t>::min();
 
 // ---------- topics ----------
 // "front" + "intensity_grid" -> "front/intensity_grid"; an empty prefix gives the bare name.
-inline std::string joinTopic(std::string prefix, const std::string &name)
+inline std::string joinTopic(std::string prefix, const std::string & name)
 {
-  if (prefix.empty())
-  {
+  if (prefix.empty()) {
     return name;
   }
-  while (!prefix.empty() && prefix.back() == '/')
-  {
+  while (!prefix.empty() && prefix.back() == '/') {
     prefix.pop_back();
   }
   return prefix + "/" + name;
@@ -45,20 +43,19 @@ enum class FusionRule
   Latest
 };
 
-inline bool parseFusionRule(const std::string &name, FusionRule &rule)
+inline bool parseFusionRule(const std::string & name, FusionRule & rule)
 {
-  if (name == "max") { rule = FusionRule::Max; return true; }
-  if (name == "min") { rule = FusionRule::Min; return true; }
-  if (name == "sum") { rule = FusionRule::Sum; return true; }
-  if (name == "mean") { rule = FusionRule::Mean; return true; }
-  if (name == "latest") { rule = FusionRule::Latest; return true; }
+  if (name == "max") {rule = FusionRule::Max; return true;}
+  if (name == "min") {rule = FusionRule::Min; return true;}
+  if (name == "sum") {rule = FusionRule::Sum; return true;}
+  if (name == "mean") {rule = FusionRule::Mean; return true;}
+  if (name == "latest") {rule = FusionRule::Latest; return true;}
   return false;
 }
 
-inline const char *fusionRuleName(FusionRule rule)
+inline const char * fusionRuleName(FusionRule rule)
 {
-  switch (rule)
-  {
+  switch (rule) {
     case FusionRule::Max: return "max";
     case FusionRule::Min: return "min";
     case FusionRule::Sum: return "sum";
@@ -72,32 +69,27 @@ inline const char *fusionRuleName(FusionRule rule)
 // unknown in every layer stays unknown. Layers must be ordered oldest to
 // newest (only "latest" cares) and have the same size.
 inline std::vector<signed char> fuseLayers(
-    FusionRule rule, const std::vector<const std::vector<signed char> *> &layers)
+  FusionRule rule, const std::vector<const std::vector<signed char> *> & layers)
 {
-  if (layers.empty())
-  {
+  if (layers.empty()) {
     return {};
   }
   const size_t n = layers.front()->size();
   std::vector<signed char> out(n, kUnknownCell);
 
-  for (size_t i = 0; i < n; ++i)
-  {
+  for (size_t i = 0; i < n; ++i) {
     int count = 0;
     int sum = 0;
     int max_v = std::numeric_limits<int>::min();
     int min_v = std::numeric_limits<int>::max();
     int latest = kUnknownCell;
 
-    for (const auto *layer : layers)
-    {
-      if (i >= layer->size())
-      {
+    for (const auto * layer : layers) {
+      if (i >= layer->size()) {
         continue;
       }
       const int v = (*layer)[i];
-      if (v == kUnknownCell)
-      {
+      if (v == kUnknownCell) {
         continue;
       }
       ++count;
@@ -106,14 +98,12 @@ inline std::vector<signed char> fuseLayers(
       min_v = std::min(min_v, v);
       latest = v;
     }
-    if (count == 0)
-    {
+    if (count == 0) {
       continue;
     }
 
     int result = 0;
-    switch (rule)
-    {
+    switch (rule) {
       case FusionRule::Max: result = max_v; break;
       case FusionRule::Min: result = min_v; break;
       case FusionRule::Sum: result = sum; break;
@@ -144,7 +134,7 @@ struct GridGeometry
   size_t cell_count = 0;
 };
 
-inline GridGeometry geometryOf(const nav_msgs::msg::OccupancyGrid &g)
+inline GridGeometry geometryOf(const nav_msgs::msg::OccupancyGrid & g)
 {
   GridGeometry r;
   r.resolution = g.info.resolution;
@@ -161,7 +151,7 @@ inline GridGeometry geometryOf(const nav_msgs::msg::OccupancyGrid &g)
   return r;
 }
 
-inline GridGeometry geometryOf(const grid_map_msgs::msg::GridMap &g)
+inline GridGeometry geometryOf(const grid_map_msgs::msg::GridMap & g)
 {
   GridGeometry r;
   r.resolution = g.info.resolution;
@@ -178,9 +168,9 @@ inline GridGeometry geometryOf(const grid_map_msgs::msg::GridMap &g)
   return r;
 }
 
-inline bool sameGeometry(const GridGeometry &a, const GridGeometry &b, double tol = 1e-6)
+inline bool sameGeometry(const GridGeometry & a, const GridGeometry & b, double tol = 1e-6)
 {
-  const auto near = [tol](double x, double y) { return std::abs(x - y) <= tol; };
+  const auto near = [tol](double x, double y) {return std::abs(x - y) <= tol;};
   return a.cell_count == b.cell_count && near(a.resolution, b.resolution) &&
          near(a.length_x, b.length_x) && near(a.length_y, b.length_y) &&
          near(a.pos_x, b.pos_x) && near(a.pos_y, b.pos_y) && near(a.pos_z, b.pos_z) &&
@@ -192,8 +182,7 @@ inline bool sameGeometry(const GridGeometry &a, const GridGeometry &b, double to
 // GridMap layers hold cells / 127 (see fillGridMap); this is the inverse.
 inline signed char gridMapValueToCell(float value)
 {
-  if (!std::isfinite(value))
-  {
+  if (!std::isfinite(value)) {
     return kUnknownCell;
   }
   const long cell = std::lround(value * 127.0f);
@@ -201,25 +190,24 @@ inline signed char gridMapValueToCell(float value)
 }
 
 // Uses the first layer, which is the only one a pointcloud_to_grid node publishes.
-inline std::vector<signed char> cellsOf(const grid_map_msgs::msg::GridMap &g)
+inline std::vector<signed char> cellsOf(const grid_map_msgs::msg::GridMap & g)
 {
   std::vector<signed char> cells;
-  if (g.data.empty())
-  {
+  if (g.data.empty()) {
     return cells;
   }
   cells.reserve(g.data[0].data.size());
-  for (const float v : g.data[0].data)
-  {
+  for (const float v : g.data[0].data) {
     cells.push_back(gridMapValueToCell(v));
   }
   return cells;
 }
 
-inline void fillOccupancyGrid(nav_msgs::msg::OccupancyGrid &grid,
-                              const std::vector<signed char> &cells,
-                              const std::string &frame_id,
-                              const builtin_interfaces::msg::Time &stamp)
+inline void fillOccupancyGrid(
+  nav_msgs::msg::OccupancyGrid & grid,
+  const std::vector<signed char> & cells,
+  const std::string & frame_id,
+  const builtin_interfaces::msg::Time & stamp)
 {
   grid.header.stamp = stamp;
   grid.header.frame_id = frame_id;
@@ -229,19 +217,18 @@ inline void fillOccupancyGrid(nav_msgs::msg::OccupancyGrid &grid,
 
 // The layer must already be sized. Returns false, and leaves the data
 // untouched, if the sizes do not match.
-inline bool fillGridMap(grid_map_msgs::msg::GridMap &msg,
-                        const std::vector<signed char> &cells,
-                        const std::string &frame_id,
-                        const builtin_interfaces::msg::Time &stamp)
+inline bool fillGridMap(
+  grid_map_msgs::msg::GridMap & msg,
+  const std::vector<signed char> & cells,
+  const std::string & frame_id,
+  const builtin_interfaces::msg::Time & stamp)
 {
   msg.header.stamp = stamp;
   msg.header.frame_id = frame_id;
-  if (msg.data.empty() || msg.data[0].data.size() != cells.size())
-  {
+  if (msg.data.empty() || msg.data[0].data.size() != cells.size()) {
     return false;
   }
-  for (size_t i = 0; i < cells.size(); ++i)
-  {
+  for (size_t i = 0; i < cells.size(); ++i) {
     msg.data[0].data[i] = static_cast<float>(cells[i]) / 127.0f;
   }
   return true;
@@ -258,16 +245,17 @@ struct GridSnapshot
   grid_map_msgs::msg::GridMap::ConstSharedPtr grid_map;    // set for GridMap inputs
 };
 
-inline GridSnapshot snapshotOf(nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg, int64_t received_ns)
+inline GridSnapshot snapshotOf(
+  nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg,
+  int64_t received_ns)
 {
   GridSnapshot s;
   s.received_ns = received_ns;
   s.frame_id = msg->header.frame_id;
   s.geometry = geometryOf(*msg);
   const size_t expected =
-      static_cast<size_t>(msg->info.width) * static_cast<size_t>(msg->info.height);
-  if (expected == msg->data.size())
-  {
+    static_cast<size_t>(msg->info.width) * static_cast<size_t>(msg->info.height);
+  if (expected == msg->data.size()) {
     s.cells = msg->data;
   }
   s.occupancy = std::move(msg);
@@ -302,64 +290,56 @@ struct FusionResult
   std::vector<InputState> states;  // one per input, same order
 };
 
-inline FusionResult fuseSnapshots(const std::vector<GridSnapshot> &inputs, FusionRule rule,
-                                  int64_t now_ns, int64_t timeout_ns, size_t min_inputs)
+inline FusionResult fuseSnapshots(
+  const std::vector<GridSnapshot> & inputs, FusionRule rule,
+  int64_t now_ns, int64_t timeout_ns, size_t min_inputs)
 {
   FusionResult result;
   result.states.assign(inputs.size(), InputState::kNoData);
 
   std::vector<size_t> fresh;
-  for (size_t i = 0; i < inputs.size(); ++i)
-  {
-    const GridSnapshot &in = inputs[i];
-    if (in.received_ns == kNever || in.cells.empty())
-    {
+  for (size_t i = 0; i < inputs.size(); ++i) {
+    const GridSnapshot & in = inputs[i];
+    if (in.received_ns == kNever || in.cells.empty()) {
       continue;
     }
     const int64_t age_ns = now_ns - in.received_ns;
-    if (age_ns < 0 || age_ns > timeout_ns)
-    {
+    if (age_ns < 0 || age_ns > timeout_ns) {
       result.states[i] = InputState::kStale;
       continue;
     }
     fresh.push_back(i);
   }
-  if (fresh.empty())
-  {
+  if (fresh.empty()) {
     return result;
   }
 
   // the first fresh input defines frame and geometry
-  const GridSnapshot &ref = inputs[fresh.front()];
+  const GridSnapshot & ref = inputs[fresh.front()];
   result.reference = static_cast<int>(fresh.front());
 
   std::vector<size_t> used;
-  for (const size_t i : fresh)
-  {
-    const GridSnapshot &in = inputs[i];
-    if (in.frame_id == ref.frame_id && sameGeometry(in.geometry, ref.geometry))
-    {
+  for (const size_t i : fresh) {
+    const GridSnapshot & in = inputs[i];
+    if (in.frame_id == ref.frame_id && sameGeometry(in.geometry, ref.geometry)) {
       result.states[i] = InputState::kUsed;
       used.push_back(i);
-    }
-    else
-    {
+    } else {
       result.states[i] = InputState::kIncompatible;
     }
   }
   result.used = used.size();
-  if (used.size() < std::max<size_t>(min_inputs, 1))
-  {
+  if (used.size() < std::max<size_t>(min_inputs, 1)) {
     return result;
   }
 
   // oldest first, so "latest" lets the newest grid win; ties keep the configured order
-  std::stable_sort(used.begin(), used.end(), [&inputs](size_t a, size_t b) {
-    return inputs[a].received_ns < inputs[b].received_ns;
-  });
+  std::stable_sort(
+    used.begin(), used.end(), [&inputs](size_t a, size_t b) {
+      return inputs[a].received_ns < inputs[b].received_ns;
+    });
   std::vector<const std::vector<signed char> *> layers;
-  for (const size_t i : used)
-  {
+  for (const size_t i : used) {
     layers.push_back(&inputs[i].cells);
   }
   result.cells = fuseLayers(rule, layers);

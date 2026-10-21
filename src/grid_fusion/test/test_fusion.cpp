@@ -19,19 +19,19 @@ using Cells = std::vector<signed char>;
 constexpr signed char U = kUnknownCell;
 constexpr int64_t kSec = 1000000000LL;
 
-Cells fuse(FusionRule rule, const std::vector<Cells> &layers)
+Cells fuse(FusionRule rule, const std::vector<Cells> & layers)
 {
   std::vector<const Cells *> ptrs;
-  for (const auto &l : layers)
-  {
+  for (const auto & l : layers) {
     ptrs.push_back(&l);
   }
   return fuseLayers(rule, ptrs);
 }
 
 // A one-row grid; enough for fuseSnapshots, which never touches the message pointers.
-GridSnapshot makeSnapshot(const Cells &cells, int64_t received_ns,
-                          const std::string &frame = "map", double resolution = 1.0)
+GridSnapshot makeSnapshot(
+  const Cells & cells, int64_t received_ns,
+  const std::string & frame = "map", double resolution = 1.0)
 {
   GridSnapshot s;
   s.received_ns = received_ns;
@@ -44,7 +44,7 @@ GridSnapshot makeSnapshot(const Cells &cells, int64_t received_ns,
   return s;
 }
 
-grid_map_msgs::msg::GridMap makeGridMapMsg(const std::vector<float> &values)
+grid_map_msgs::msg::GridMap makeGridMapMsg(const std::vector<float> & values)
 {
   grid_map_msgs::msg::GridMap msg;
   msg.header.frame_id = "map";
@@ -94,9 +94,8 @@ TEST(FusionRuleParsing, AcceptsAllNamesAndRejectsOthers)
 TEST(FusionRuleParsing, NamesRoundTrip)
 {
   const FusionRule all[] = {FusionRule::Max, FusionRule::Min, FusionRule::Sum, FusionRule::Mean,
-                            FusionRule::Latest};
-  for (const FusionRule r : all)
-  {
+    FusionRule::Latest};
+  for (const FusionRule r : all) {
     FusionRule parsed = FusionRule::Max;
     ASSERT_TRUE(parseFusionRule(fusionRuleName(r), parsed));
     EXPECT_EQ(parsed, r);
@@ -129,9 +128,8 @@ TEST(FuseLayers, SingleLayerPassesThroughForEveryRule)
 {
   const Cells layer = {5, U, -7};
   const FusionRule all[] = {FusionRule::Max, FusionRule::Min, FusionRule::Sum, FusionRule::Mean,
-                            FusionRule::Latest};
-  for (const FusionRule r : all)
-  {
+    FusionRule::Latest};
+  for (const FusionRule r : all) {
     EXPECT_EQ(fuse(r, {layer}), layer) << fusionRuleName(r);
   }
 }
@@ -246,8 +244,7 @@ TEST(Conversion, FillGridMapRefusesWrongSizes)
 {
   auto msg = makeGridMapMsg({42.0f, 42.0f, 42.0f, 42.0f});
   EXPECT_FALSE(fillGridMap(msg, {1, 2, 3}, "map", builtin_interfaces::msg::Time()));
-  for (const float v : msg.data[0].data)
-  {
+  for (const float v : msg.data[0].data) {
     EXPECT_FLOAT_EQ(v, 42.0f);
   }
 
@@ -293,7 +290,7 @@ TEST(Snapshot, OccupancyGridWithInconsistentSizeIsUnusable)
 TEST(Snapshot, GridMapIsConvertedToCells)
 {
   auto msg = std::make_shared<grid_map_msgs::msg::GridMap>(
-      makeGridMapMsg({1.0f, 0.0f, -128.0f / 127.0f}));
+    makeGridMapMsg({1.0f, 0.0f, -128.0f / 127.0f}));
   const GridSnapshot s = snapshotOf(msg, 7);
   EXPECT_EQ(s.cells, (Cells{127, 0, U}));
   EXPECT_EQ(s.geometry.cell_count, 3u);
@@ -305,7 +302,7 @@ TEST(Snapshot, GridMapIsConvertedToCells)
 TEST(FuseSnapshots, CombinesAllFreshInputs)
 {
   const std::vector<GridSnapshot> inputs = {makeSnapshot({10, 20}, 9 * kSec),
-                                            makeSnapshot({30, U}, 10 * kSec)};
+    makeSnapshot({30, U}, 10 * kSec)};
   const auto r = fuseSnapshots(inputs, FusionRule::Max, 10 * kSec, 2 * kSec, 1);
 
   EXPECT_EQ(r.cells, (Cells{30, 20}));
@@ -318,7 +315,7 @@ TEST(FuseSnapshots, CombinesAllFreshInputs)
 TEST(FuseSnapshots, StalledInputIsExcluded)
 {
   const std::vector<GridSnapshot> inputs = {makeSnapshot({10, 20}, 9 * kSec),
-                                            makeSnapshot({99, 99}, 5 * kSec)};
+    makeSnapshot({99, 99}, 5 * kSec)};
   const auto r = fuseSnapshots(inputs, FusionRule::Max, 10 * kSec, 2 * kSec, 1);
 
   EXPECT_EQ(r.cells, (Cells{10, 20}));
@@ -356,7 +353,7 @@ TEST(FuseSnapshots, InputWithoutDataIsReportedAsSuch)
 TEST(FuseSnapshots, MinInputsBlocksOutputButStillReportsStates)
 {
   const std::vector<GridSnapshot> inputs = {makeSnapshot({1, 2}, 10 * kSec),
-                                            makeSnapshot({3, 4}, 1 * kSec)};
+    makeSnapshot({3, 4}, 1 * kSec)};
   const auto r = fuseSnapshots(inputs, FusionRule::Max, 10 * kSec, 2 * kSec, 2);
 
   EXPECT_TRUE(r.cells.empty());
@@ -367,7 +364,8 @@ TEST(FuseSnapshots, MinInputsBlocksOutputButStillReportsStates)
 
 TEST(FuseSnapshots, AllStalledGivesNoOutputAndNoReference)
 {
-  const std::vector<GridSnapshot> inputs = {makeSnapshot({1}, 1 * kSec), makeSnapshot({2}, 2 * kSec)};
+  const std::vector<GridSnapshot> inputs =
+  {makeSnapshot({1}, 1 * kSec), makeSnapshot({2}, 2 * kSec)};
   const auto r = fuseSnapshots(inputs, FusionRule::Max, 10 * kSec, 2 * kSec, 1);
   EXPECT_TRUE(r.cells.empty());
   EXPECT_EQ(r.reference, -1);
@@ -377,7 +375,7 @@ TEST(FuseSnapshots, AllStalledGivesNoOutputAndNoReference)
 TEST(FuseSnapshots, DifferentFrameIsIncompatible)
 {
   const std::vector<GridSnapshot> inputs = {makeSnapshot({1, 2}, 10 * kSec, "map"),
-                                            makeSnapshot({3, 4}, 10 * kSec, "odom")};
+    makeSnapshot({3, 4}, 10 * kSec, "odom")};
   const auto r = fuseSnapshots(inputs, FusionRule::Max, 10 * kSec, 2 * kSec, 1);
   EXPECT_EQ(r.cells, (Cells{1, 2}));
   EXPECT_EQ(r.states[1], InputState::kIncompatible);
@@ -386,7 +384,7 @@ TEST(FuseSnapshots, DifferentFrameIsIncompatible)
 TEST(FuseSnapshots, DifferentGeometryIsIncompatible)
 {
   const std::vector<GridSnapshot> inputs = {makeSnapshot({1, 2}, 10 * kSec, "map", 1.0),
-                                            makeSnapshot({3, 4}, 10 * kSec, "map", 0.5)};
+    makeSnapshot({3, 4}, 10 * kSec, "map", 0.5)};
   const auto r = fuseSnapshots(inputs, FusionRule::Max, 10 * kSec, 2 * kSec, 1);
   EXPECT_EQ(r.states[1], InputState::kIncompatible);
   EXPECT_EQ(r.used, 1u);
@@ -395,8 +393,8 @@ TEST(FuseSnapshots, DifferentGeometryIsIncompatible)
 TEST(FuseSnapshots, ReferenceIsTheFirstFreshInputNotTheFirstConfigured)
 {
   const std::vector<GridSnapshot> inputs = {makeSnapshot({9, 9}, 1 * kSec, "map"),    // stale
-                                            makeSnapshot({1, 2}, 10 * kSec, "map"),   // reference
-                                            makeSnapshot({3, 4}, 10 * kSec, "odom")};  // mismatch
+    makeSnapshot({1, 2}, 10 * kSec, "map"),                                           // reference
+    makeSnapshot({3, 4}, 10 * kSec, "odom")};                                          // mismatch
   const auto r = fuseSnapshots(inputs, FusionRule::Max, 10 * kSec, 2 * kSec, 1);
 
   EXPECT_EQ(r.reference, 1);
@@ -409,7 +407,7 @@ TEST(FuseSnapshots, ReferenceIsTheFirstFreshInputNotTheFirstConfigured)
 TEST(FuseSnapshots, LatestFollowsReceiveTimeNotConfiguredOrder)
 {
   const std::vector<GridSnapshot> inputs = {makeSnapshot({10}, 9 * kSec),   // newer
-                                            makeSnapshot({20}, 8 * kSec)};  // older
+    makeSnapshot({20}, 8 * kSec)};                                          // older
   const auto r = fuseSnapshots(inputs, FusionRule::Latest, 10 * kSec, 5 * kSec, 1);
   EXPECT_EQ(r.cells, (Cells{10}));
 }
